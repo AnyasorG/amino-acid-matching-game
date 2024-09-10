@@ -1,0 +1,112 @@
+/* General body styles */
+body {
+    font-family: 'Roboto', Arial, sans-serif;
+    background-color: #F9FBE7;
+    /* Soft off-white background */
+    margin: 0;
+    padding: 0;
+    color: #4E342E;
+    /* Dark brown text */
+    line-height: 1.6;
+}
+
+/* Main heading */
+h1 {
+    color: #4E342E;
+    /* Dark brown */
+    text-align: center;
+    margin-top: 20px;
+    font-size: 2rem;
+}
+
+/* Game card styling */
+.game-card {
+    background-color: #e7c659;
+    /* Light beige */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 50px;
+    text-align: center;
+    width: 100%;
+    max-width: 700px;
+}
+
+/* Scoreboard styles */
+.scoreboard {
+    margin-bottom: 20px;
+}
+
+.scoreboard h4 {
+    color: #4E342E;
+    /* Dark brown */
+    margin: 5px 0;
+}
+
+/* Button styles */
+button {
+    background-color: #8BC34A;
+    /* Soft green */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+/* Button hover effect */
+button:hover {
+    background-color: #7CB342;
+    /* Slightly darker green */
+}
+
+/* Hint and refresh buttons with earthy tones */
+.btn-hint {
+    background-color: #A1887F;
+    /* Muted brown */
+    color: white;
+}
+
+.btn-refresh {
+    background-color: #D84315;
+    /* Earthy red */
+    color: white;
+}
+
+/* Success and error message styles */
+.alert-success {
+    background-color: #8BC34A;
+    /* Green for success */
+    color: white;
+}
+
+.alert-danger {
+    background-color: #D84315;
+    /* Earthy red for error */
+    color: white;
+}
+
+/* Organic-style list group */
+.list-group-item {
+    background-color: #FFF8E1;
+    /* Light beige */
+    border: 1px solid #8BC34A;
+    /* Green border */
+    color: #4E342E;
+    /* Dark brown */
+    margin-bottom: 5px;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    .game-card {
+        padding: 20px;
+    }
+
+    button {
+        width: 100%;
+    }
+}

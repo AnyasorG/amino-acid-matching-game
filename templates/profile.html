@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Welcome, {{ user[1] }}</h2>
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <p><strong>Username:</strong> {{ user[1] }}</p>
+                        <p><strong>Current Score:</strong> {{ user[3] }}</p>
+                        <p><strong>Current Streak:</strong> {{ user[4] }}</p>
+                        <p><strong>Difficulty Level:</strong> {{ user[5] }}</p>
+                    </div>
+                </div>
+
+                <!-- Difficulty selection form -->
+                <form action="{{ url_for('set_difficulty') }}" method="POST" class="mb-4">
+                    <div class="mb-3">
+                        <label for="difficulty" class="form-label">Select Difficulty:</label>
+                        <select class="form-select" name="difficulty" id="difficulty">
+                            <option value="easy" {% if user[5]=='easy' %}selected{% endif %}>Easy</option>
+                            <option value="medium" {% if user[5]=='medium' %}selected{% endif %}>Medium</option>
+                            <option value="hard" {% if user[5]=='hard' %}selected{% endif %}>Hard</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Update Difficulty</button>
+                </form>
+
+                <!-- Start Game and Logout buttons -->
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('index') }}" class="btn btn-success">Start Game</a>
+                    <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

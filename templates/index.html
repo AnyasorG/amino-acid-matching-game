@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amino Acid Matching Game</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    <style>
+        /* Background with subtle gradient for a more dynamic and professional look */
+        body {
+            background: linear-gradient(135deg, #f0f4f8, #dfe7ec);
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+        }
+
+        .game-card {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.15);
+            /* Enhanced shadow for depth */
+            margin-top: 50px;
+            border: 1px solid #c8e6c9;
+            text-align: center;
+            width: 100%;
+            /* Changed from 200% to 100% */
+            max-width: 700px;
+        }
+
+        .game-card h1 {
+            color: #2e7d32;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .amino-acid-structure img {
+            max-width: 50%;
+            /* Increased from 25% to 50% for better visibility */
+            height: auto;
+            margin: 20px 0;
+            border-radius: 10px;
+            border: 2px solid #c8e6c9;
+        }
+
+        .btn-submit,
+        .btn-hint,
+        .btn-refresh,
+        .btn-next,
+        .btn-go-profile {
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 1rem;
+            padding: 12px 25px;
+            margin: 10px 0;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        /* Button hover effect */
+        .btn-submit:hover,
+        .btn-hint:hover,
+        .btn-refresh:hover,
+        .btn-next:hover,
+        .btn-go-profile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-submit {
+            background-color: #4CAF50;
+            color: #fff;
+        }
+
+        .btn-hint {
+            background-color: #ffeb3b;
+            color: #000;
+        }
+
+        .btn-refresh {
+            background-color: #f44336;
+            color: #fff;
+        }
+
+        .btn-next {
+            background-color: #64b5f6;
+            color: #fff;
+        }
+
+        .btn-go-profile {
+            background-color: #8d6e63;
+            color: #fff;
+        }
+
+        /* Leaderboard and Achievements Styling */
+        .leaderboard h3,
+        .achievements h3 {
+            font-size: 1.25rem;
+            color: #388e3c;
+            font-weight: 600;
+        }
+
+        .list-group-item {
+            font-size: 1rem;
+            background-color: #f8f9fa;
+            border: 1px solid #c8e6c9;
+            border-radius: 8px;
+        }
+
+        /* Hint modal adjustments */
+        .modal-body p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .game-card {
+                padding: 20px;
+                width: 100%;
+            }
+
+            .amino-acid-structure img {
+                max-width: 80%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container d-flex flex-column align-items-center">
+        <div class="col-lg-6 col-md-8 col-sm-12">
+            <div class="game-card">
+                <h1 class="text-center mb-3">Amino Acid Matching Game</h1>
+
+                <!-- Score Display -->
+                <div class="text-center mb-3">
+                    <h4>Your Score: <strong>{{ score }}</strong></h4>
+                    <h4>Your Streak: <strong>{{ streak }}</strong></h4>
+                    <h4>Difficulty Level: <strong>{{ difficulty }}</strong></h4>
+                </div>
+
+                <!-- Error message if no option is selected -->
+                {% if error_message %}
+                <div class="alert alert-danger">
+                    {{ error_message }}
+                </div>
+                {% endif %}
+
+                <!-- Reward message when unlocking achievements -->
+                {% if reward_message %}
+                <div class="alert alert-success">
+                    {{ reward_message }}
+                </div>
+                {% endif %}
+
+                <!-- Amino Acid Structure Image -->
+                <div class="amino-acid-structure">
+                    <img src="{{ url_for('static', filename='images/amino-acid-structure.png') }}"
+                        alt="Amino Acid Structure">
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        {% if started %}
+                        <p class="card-title text-center">
+                            Which amino acid is described as <strong>{{ correct_acid.polarity }}</strong> and has a
+                            <strong>{{ correct_acid.charge }}</strong> charge?
+                        </p>
+
+                        <form method="POST" class="d-flex flex-column align-items-center">
+                            <!-- Hidden fields to pass correct amino acid data -->
+                            <input type="hidden" name="correct_name" value="{{ correct_acid['name'] }}">
+                            <input type="hidden" name="correct_polarity" value="{{ correct_acid['polarity'] }}">
+                            <input type="hidden" name="correct_charge" value="{{ correct_acid['charge'] }}">
+                            <input type="hidden" name="correct_code" value="{{ correct_acid['code'] }}">
+                            <input type="hidden" name="options_json" value="{{ options_json }}">
+
+                            <div class="col-12">
+                                {% for option in options %}
+                                <div class="form-check my-1">
+                                    <input class="form-check-input" type="radio" name="choice"
+                                        id="option{{ loop.index0 }}" value="{{ loop.index0 }}" {% if correct is not none
+                                        %}disabled{% endif %}>
+                                    <label class="form-check-label" for="option{{ loop.index0 }}">{{ option['name'] }}
+                                        ({{ option['code'] }})</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Buttons with spacing -->
+                            {% if correct is none %}
+                            <div class="d-flex justify-content-between mt-2">
+                                <button type="submit" name="submit" class="btn btn-submit">Submit</button>
+                                <button type="submit" name="hint" class="btn btn-hint mx-1"
+                                    aria-label="Get a hint">Hint</button>
+                                <button type="submit" name="refresh" class="btn btn-refresh"
+                                    aria-label="Refresh the game">Refresh</button>
+                            </div>
+                            {% endif %}
+                        </form>
+
+                        <!-- Modal Display Hint if it exists -->
+                        {% if hint %}
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function () {
+                                var hintContent = "{{ hint | safe }}";
+                                document.getElementById('hintModalContent').innerText = hintContent;
+                                var hintModal = new bootstrap.Modal(document.getElementById('hintModal'));
+                                hintModal.show();
+                            });
+                        </script>
+                        {% endif %}
+
+                        {% if correct is not none %}
+                        <div class="text-center mt-2">
+                            {% if correct %}
+                            <div class="alert alert-success result-message">Correct! 🎉 {{ correct_acid.name }} ({{
+                                correct_acid.code }}) is a {{ correct_acid.polarity }} amino acid with a {{
+                                correct_acid.charge }} charge.</div>
+                            {% else %}
+                            <div class="alert alert-danger result-message">Incorrect. The correct answer was {{
+                                correct_acid.name }} ({{ correct_acid.code }}).</div>
+                            {% endif %}
+
+                            <form method="POST">
+                                <input type="hidden" name="start" value="true">
+                                <button type="submit" class="btn btn-next mt-1"
+                                    aria-label="Go to next question">Next</button>
+                            </form>
+                        </div>
+                        {% endif %}
+
+                        {% else %}
+                        <div class="text-center">
+                            <p>Click start to play the game!</p>
+                            <form method="POST">
+                                <input type="hidden" name="start" value="true">
+                                <button type="submit" class="btn btn-success" aria-label="Start the game">Start</button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Achievements and Leaderboard Display -->
+                <div class="text-center mt-3">
+                    <div class="achievements mb-2">
+                        <h3>Achievements</h3>
+                        <ul class="list-group">
+                            {% for achievement in achievements %}
+                            <li class="list-group-item">🏅 {{ achievement }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="leaderboard">
+                        <h3>Leaderboard</h3>
+                        <ul class="list-group">
+                            {% for entry in leaderboard %}
+                            <li class="list-group-item">Score: {{ entry['score'] }}, Streak: {{ entry['streak'] }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Go to Profile Button -->
+                <div class="profile-button mt-2 text-center">
+                    <a href="{{ url_for('profile') }}" class="btn btn-go-profile">Go to Profile</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hint Modal -->
+    <div class="modal fade" id="hintModal" tabindex="-1" aria-labelledby="hintModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="hintModalLabel">Hint</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="hintModalContent"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
