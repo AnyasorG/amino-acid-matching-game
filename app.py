@@ -154,7 +154,6 @@ def index():
 
     if request.method == "POST":
         if "start" in request.form:
-            # Start the game logic here
             started = True
 
             # Randomly select an amino acid and create choices
@@ -164,9 +163,12 @@ def index():
             options = incorrect_choices + [correct_acid]
             random.shuffle(options)
 
-            # Render the page with options for the player to select
+            # Build the correct amino acid image path
+            correct_acid_image = f'images/{correct_acid["name"]}.png'
+
             return render_template('index.html',
                                    correct_acid=correct_acid,
+                                   correct_acid_image=correct_acid_image,  # Pass the image path
                                    options=options,
                                    started=started,
                                    score=session.get('score', 0),
@@ -188,13 +190,14 @@ def index():
                 'code': request.form.get("correct_code")
             }
             options = json.loads(request.form.get("options_json"))
+            correct_acid_image = f'images/{correct_acid["name"]}.png'  # Add the image path
 
             # Check if the user has selected an option
             user_choice = request.form.get("choice")
             if user_choice is None:
-                # Return with error message if no option was selected
                 return render_template('index.html',
                                        correct_acid=correct_acid,
+                                       correct_acid_image=correct_acid_image,  # Pass the image path
                                        options=options,
                                        started=True,
                                        score=session.get('score', 0),
@@ -219,19 +222,17 @@ def index():
             if correct:
                 session['score'] = session.get('score', 0) + 1
                 session['streak'] = session.get('streak', 0) + 1
-                # Add achievements
                 if session.get('streak') == 5 and "First Streak" not in achievements:
                     achievements.append("First Streak")
                 elif session.get('streak') == 10 and "Amino Acid Master" not in achievements:
                     achievements.append("Amino Acid Master")
-                # Update leaderboard
                 leaderboard.append({'score': session.get('score'), 'streak': session.get('streak')})
             else:
                 session['streak'] = 0  # Reset streak
 
-            # Return the game page with the result
             return render_template('index.html',
                                    correct_acid=correct_acid,
+                                   correct_acid_image=correct_acid_image,  # Pass the image path
                                    options=options,
                                    correct=correct,
                                    started=True,
@@ -253,17 +254,17 @@ def index():
                 'code': request.form.get("correct_code")
             }
             options = json.loads(request.form.get("options_json"))
+            correct_acid_image = f'images/{correct_acid["name"]}.png'  # Add the image path
 
-            # Determine hint type based on the difficulty
             difficulty = session.get('difficulty', 'easy')
             hint_type = random.choice(['polarity', 'charge', 'structure', 'functional_group', 'biological_context'])
 
             # Provide a hint based on hint type
             hint = get_hint(hint_type)
 
-            # Render the page with the hint provided
             return render_template('index.html',
                                    correct_acid=correct_acid,
+                                   correct_acid_image=correct_acid_image,  # Pass the image path
                                    options=options,
                                    started=True,
                                    score=session.get('score', 0),
@@ -278,19 +279,18 @@ def index():
                                    leaderboard=leaderboard)
 
         elif "refresh" in request.form:
-            # Reset score and streak
             session['score'] = 0
             session['streak'] = 0
-            # Randomly select an amino acid and create choices
             correct_acid = random.choice(amino_acids)
             incorrect_options = [acid for acid in amino_acids if acid['name'] != correct_acid['name']]
             incorrect_choices = random.sample(incorrect_options, 3)
             options = incorrect_choices + [correct_acid]
             random.shuffle(options)
+            correct_acid_image = f'images/{correct_acid["name"]}.png'  # Add the image path
 
-            # Render the page with updated score and streak
             return render_template('index.html',
                                    correct_acid=correct_acid,
+                                   correct_acid_image=correct_acid_image,  # Pass the image path
                                    options=options,
                                    started=True,
                                    score=session.get('score', 0),
@@ -304,7 +304,6 @@ def index():
                                    achievements=achievements,
                                    leaderboard=leaderboard)
 
-    # If GET request, show the start button
     return render_template('index.html',
                            started=False,
                            score=session.get('score', 0),

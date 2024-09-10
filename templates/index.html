@@ -30,7 +30,6 @@
             border: 1px solid #c8e6c9;
             text-align: center;
             width: 100%;
-            /* Changed from 200% to 100% */
             max-width: 700px;
         }
 
@@ -43,7 +42,6 @@
 
         .amino-acid-structure img {
             max-width: 50%;
-            /* Increased from 25% to 50% for better visibility */
             height: auto;
             margin: 20px 0;
             border-radius: 10px;
@@ -64,7 +62,6 @@
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
 
-        /* Button hover effect */
         .btn-submit:hover,
         .btn-hint:hover,
         .btn-refresh:hover,
@@ -164,8 +161,9 @@
 
                 <!-- Amino Acid Structure Image -->
                 <div class="amino-acid-structure">
-                    <img src="{{ url_for('static', filename='images/amino-acid-structure.png') }}"
-                        alt="Amino Acid Structure">
+                    {% if correct_acid_image %}
+                    <img src="{{ url_for('static', filename=correct_acid_image) }}" alt="{{ correct_acid.name }}">
+                    {% endif %}
                 </div>
 
                 <div class="card">
